@@ -1,0 +1,28 @@
+version: '3'
+services:
+  mysql:
+    image: mysql
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci','--default-authentication-plugin=mysql_native_password']
+    container_name: test.db
+    volumes:
+      - "./my-datavolume:/docker-entrypoint-initdb.d"
+    restart: always
+    environment:
+      MYSQL_DATABASE: "news"
+      MYSQL_USER: "admin"
+      MYSQL_PASSWORD: "test1234"
+      MYSQL_ROOT_PASSWORD: "test1234"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+  web:
+    container_name: test.app
+    build: ./app
+    command: npm start
+    ports:
+        - "8080:8080"
+    volumes:
+        - ./app/:/workdir/
+        - /workdir/node_modules
+    depends_on:
+        - mysql
+    environment:
+        - DATABASE_HOST=mysql
